@@ -1,63 +1,98 @@
+var express = require("express");
+var app = express();
 
-var express = require("express"); // imports express
-var app = express();        // create a new instance of express
-
-// imports the fs module (reading and writing to a text file)
 var fs = require("fs");
-
-// the bodyParser middleware allows us to parse the
-// body of a request
 app.use(express.bodyParser());
+var trackdata;
 
-// The global datastore for this example
-var datastore;
-
-// Asynchronously read file contents, then call callbackFn
 function readFile(filename, defaultData, callbackFn) {
-  fs.readFile(filename, function(err, data) {
-    if (err) {
-      console.log("Error reading file: ", filename);
-      data = defaultData;
-    } else {
-      console.log("Success reading file: ", filename);
-    }
-    if (callbackFn) callbackFn(err, data);
-  });
-}
+	fs.readFile(filename, function(err, data) {
+		if (err) {
+			console.log("Error reading file: ", filename);
+			data = defaultData;
+		} else {
+			console.log("Success reading file: ", filename);
+		}
+		if (callbackFn) callbackFn(err, data);
+	});
+};
 
-// Asynchronously write file contents, then call callbackFn
 function writeFile(filename, data, callbackFn) {
-  fs.writeFile(filename, data, function(err) {
-    if (err) {
-      console.log("Error writing file: ", filename);
-    } else {
-      console.log("Success writing file: ", filename);
-    }
-    if (callbackFn) callbackFn(err);
-  });
-}
+	fs.writeFile(filename, data, function(err) {
+		if (err) {
+			console.log("Error writing file: ", filename);
+		} else {
+			console.log("Success writing file: ", filename);
+		}
+		if (callbackFn) callbackFn(err);
+	});
+};
 
-// This is for serving files in the static directory
-app.get("/static/:staticFilename", function (request, response) {
-	console.log("getting file");
-    response.sendfile("static/" + request.params.staticFilename);
-});
-
-app.get("/test", function (request, response) {
+// Get all
+app.get("/track_list/", function (request, response) {
 	console.log("getting /test");
 	response.send({
 		success: true
 	});
 });
 
+// Get one
+app.get("/track_list/:id", function (request, response) {
+	console.log("getting file");
+    response.sendfile("track_list/sf_" + request.params.id);
+});
+
+// Create one
+app.post("/track_list", function(request, response){
+	var track = {};
+	response.send({
+		track: track,
+		success: true
+	});
+});
+
+// Update one
+app.put("/track_list/sf_:id", function(request, repsonse){
+	var id = request.params.id;
+	response.send({
+		track: track,
+		success: true
+	});
+});
+
+// Delete all
+app.delete("/track_list", function(request, repsonse){
+	trackdata = [];
+	writeFile("track_list.txt", JSON.stringify(trackdata));
+	response.send({
+		trackdata: trackdata,
+		success: true
+	});
+});
+
+// Delete one
+app.delete("/track_list/sf_:id", function(request, response){
+	var id = request.params.id;
+	var old = trackdata[id];
+	trackdata.splice(id, 1);
+	writeFile("track_list.txt", JSON.stringify(trackdata));
+	response.send({
+		trackdata: old,
+		success: (old !== undefined)
+	});
+});
+
+// Get one html page
+app.get("/static/:filename", function(request, response){
+    response.sendfile("static/" + request.params.filename);
+});
+
 function initServer() {
-  // When we start the server, we must load the stored data
-  var defaultList = "{}";
-  readFile("users.txt", defaultList, function(err, data) {
-    datastore = JSON.parse(data);
-  });
+	var defaultList = "{}";
+	readFile("track_list.txt", defaultList, function(err, data) {
+		trackdata = JSON.parse(data);
+	});
 }
 
-// Finally, initialize the server, then activate the server at port 8889
 initServer();
 app.listen(8889);
