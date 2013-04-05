@@ -1,7 +1,7 @@
 function getMultipleTrack(trackName) {
     var track = selectedTracks[trackName];
     if (track === undefined) { // not in play selection
-	track = trackList[trackName];
+	track = multTrackList[trackName];
 	if (track === undefined) { // not saved locally at all
             track = $.ajax({
 		type: "get",
@@ -10,7 +10,7 @@ function getMultipleTrack(trackName) {
                     return data;
 		}
             });
-            trackList[trackName] = track;
+            multTrackList[trackName] = track;
 	}
 	// need to add to selected tracks either way
 	selectedTrack[trackName] = track; 
@@ -48,6 +48,6 @@ function unselectTrack(trackName) {
 }
 
 $(document).ready(function() {
-    trackList = {};
+    multTrackList = {};
     selectedTracks = {};
 })

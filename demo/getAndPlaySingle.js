@@ -1,6 +1,6 @@
 function getSingleTrack(trackName) {
     selectedTrack = trackName;
-    var track = trackList[trackName];
+    var track = singleTrackList[trackName];
     if (track === undefined) { // not saved locally yet
 	track = $.ajax({
 	    type: "get",
@@ -9,23 +9,23 @@ function getSingleTrack(trackName) {
 		return data;
 	    }
 	});
-	trackList[trackName] = track;
+	singleTrackList[trackName] = track;
     }
 }
 
 function playSingleTrack() {
-    trackList[selectedTrack].play();
+    singleTrackList[selectedTrack].play();
 };
 
 function pauseSingleTrack() {
-    trackList[selectedTrack].pause();
+    singleTrackList[selectedTrack].pause();
 }
 
 function stopSingleTrack() {
-    trackList[selectedTrack].stop();
+    singleTrackList[selectedTrack].stop();
 }
 
 $(document).ready(function() {
-    trackList = {};
+    singleTrackList = {};
     selectedTrack = "";
 })
